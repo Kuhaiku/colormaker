@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Misturador Óleo Pro - Studio</title>
+    <title>Misturador Óleo Pro - Studio v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -12,7 +12,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #eee; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Custom Scrollbar */
+        /* Scrollbar Fina e Escura */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: #18181b; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
@@ -23,148 +23,149 @@
         #magnifier {
             border-radius: 50%;
             overflow: hidden;
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 10px 20px rgba(0,0,0,0.5);
-            pointer-events: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0,0,0,0.8);
+            pointer-events: none; /* O mouse passa direto pela lupa */
         }
 
-        /* Checkered pattern for transparent colors/backgrounds */
+        /* Fundo quadriculado para transparência */
         .checkered-bg {
-            background-color: #18181b;
-            background-image: linear-gradient(45deg, #27272a 25%, transparent 25%), linear-gradient(-45deg, #27272a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #27272a 75%), linear-gradient(-45deg, transparent 75%, #27272a 75%);
+            background-color: #121212;
+            background-image: 
+                linear-gradient(45deg, #1a1a1a 25%, transparent 25%), 
+                linear-gradient(-45deg, #1a1a1a 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1a1a1a 75%), 
+                linear-gradient(-45deg, transparent 75%, #1a1a1a 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden bg-black">
 
-    <header class="bg-[#121212] border-b border-[#27272a] h-28 flex-none z-20 flex flex-col justify-center px-4 relative shadow-md">
-        <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-4">
-                <div class="bg-orange-600/20 p-2 rounded-lg">
-                    <i data-lucide="palette" class="w-5 h-5 text-orange-500"></i>
-                </div>
-                <div>
-                    <h1 class="text-sm font-bold text-gray-200 uppercase tracking-wider">Catálogo Master</h1>
-                    <span class="text-[10px] text-gray-500 block">Clique para adicionar à bancada</span>
-                </div>
+    <header class="bg-[#09090b] border-b border-[#27272a] h-20 flex-none z-20 flex items-center px-4 shadow-md relative">
+        <div class="flex items-center gap-3 w-64 border-r border-[#27272a] mr-4 pr-4 h-10">
+            <div class="bg-orange-600/20 p-1.5 rounded-lg">
+                <i data-lucide="palette" class="w-5 h-5 text-orange-500"></i>
             </div>
-            
-            <div class="relative w-64">
-                <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-500"></i>
-                <input type="text" id="searchInput" 
-                       class="bg-[#18181b] border border-[#27272a] text-gray-300 text-xs rounded-full focus:ring-1 focus:ring-orange-500 block w-full pl-9 p-2 placeholder-gray-600 transition-all" 
-                       placeholder="Filtrar catálogo..." autocomplete="off">
+            <div>
+                <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider">Catálogo Master</h1>
+                <span class="text-[10px] text-gray-500">Tintas a Óleo</span>
             </div>
         </div>
         
-        <div id="catalogList" class="flex gap-1 overflow-x-auto pb-1 select-none items-center h-12">
+        <div id="catalogList" class="flex-1 flex gap-1 overflow-x-auto custom-scrollbar pb-1 items-center h-12 px-2">
             </div>
+
+        <div class="w-48 ml-4 pl-4 border-l border-[#27272a]">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-2 top-2 w-3 h-3 text-gray-500"></i>
+                <input type="text" id="searchInput" 
+                       class="bg-[#18181b] border border-[#27272a] text-gray-300 text-[10px] rounded-full focus:ring-1 focus:ring-orange-500 block w-full pl-7 p-1.5 placeholder-gray-600 transition-all" 
+                       placeholder="Filtrar..." autocomplete="off">
+            </div>
+        </div>
     </header>
 
     <main class="flex-1 flex overflow-hidden">
         
-        <section class="flex-1 bg-[#09090b] relative flex flex-col border-r border-[#27272a]">
-            <div class="absolute top-4 left-4 z-10 flex gap-2">
+        <section class="flex-1 bg-[#050505] relative flex flex-col items-center justify-center border-r border-[#27272a] overflow-hidden group">
+            
+            <div class="absolute top-4 left-4 z-10">
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
                 <button onclick="document.getElementById('imageInput').click()" 
-                        class="bg-black/80 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-xs font-medium backdrop-blur-md border border-white/10 transition flex items-center gap-2 shadow-lg">
-                    <i data-lucide="upload-cloud"></i> Carregar Referência
+                        class="bg-black/60 hover:bg-orange-600/90 text-white px-3 py-2 rounded-lg text-xs font-medium backdrop-blur-md border border-white/10 transition flex items-center gap-2 shadow-lg">
+                    <i data-lucide="image-plus" class="w-4 h-4"></i>
+                    <span>Carregar Imagem</span>
                 </button>
             </div>
 
-            <div id="canvasContainer" class="w-full h-full flex items-center justify-center overflow-hidden cursor-crosshair relative checkered-bg group">
-                <div id="emptyState" class="text-center">
-                    <i data-lucide="image-plus" class="w-12 h-12 text-gray-700 mx-auto mb-2"></i>
-                    <p class="text-gray-600 text-sm">Arraste ou carregue uma imagem</p>
+            <div id="canvasContainer" class="w-full h-full flex items-center justify-center cursor-crosshair relative checkered-bg">
+                
+                <div id="emptyState" class="text-center opacity-40 pointer-events-none">
+                    <i data-lucide="image" class="w-16 h-16 text-gray-500 mx-auto mb-2"></i>
+                    <p class="text-gray-500 text-sm">Nenhuma imagem carregada</p>
                 </div>
                 
-                <canvas id="imageCanvas" class="max-w-full max-h-full object-contain shadow-2xl hidden"></canvas>
+                <canvas id="imageCanvas" class="hidden shadow-2xl"></canvas>
                 
-                <div id="magnifier" class="fixed w-40 h-40 hidden z-50 bg-black">
-                    <canvas id="zoomCanvas" width="160" height="160"></canvas>
+                <div id="magnifier" class="fixed w-32 h-32 hidden z-50 bg-black border border-gray-700">
+                    <canvas id="zoomCanvas" width="128" height="128"></canvas>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="w-1 h-1 bg-red-500 shadow-[0_0_2px_black]"></div>
+                        <div class="w-1 h-1 bg-red-500 shadow-[0_0_2px_white]"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="w-[400px] flex-none bg-[#121212] flex flex-col border-l border-[#27272a] overflow-hidden">
+        <section class="w-[400px] flex-none bg-[#0c0c0e] flex flex-col h-full border-l border-[#27272a] shadow-2xl z-10">
             
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
 
-                <div class="space-y-4">
-                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                        <i data-lucide="scan-eye" class="w-3 h-3"></i> Análise Atual
+                <div class="bg-[#141417] rounded-xl border border-[#27272a] p-4 shadow-sm">
+                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="scan-eye" class="w-3 h-3 text-orange-500"></i> Análise do Pixel
                     </h3>
-                    
-                    <div class="flex items-center gap-3 bg-[#18181b] p-3 rounded-xl border border-[#27272a]">
-                        <div class="text-center">
-                            <div id="targetSwatch" class="w-12 h-12 rounded-lg border border-gray-700 bg-black shadow-inner mb-1"></div>
-                            <span class="text-[10px] text-gray-500">Alvo</span>
+
+                    <div class="flex items-center justify-between gap-4 mb-4">
+                        <div class="text-center flex-1">
+                            <div id="targetSwatch" class="w-full h-12 rounded border border-gray-700 bg-black shadow-inner mb-1"></div>
+                            <span class="text-[9px] text-gray-500 uppercase">Alvo (Imagem)</span>
                         </div>
                         <i data-lucide="arrow-right" class="text-gray-700"></i>
-                        <div class="text-center relative">
-                            <div id="mixedSwatch" class="w-12 h-12 rounded-lg border border-gray-700 bg-black shadow-inner mb-1"></div>
-                            <span class="text-[10px] text-gray-500">Sua Bancada</span>
-                            <div id="accuracyBadge" class="absolute -top-2 -right-2 bg-gray-800 text-white text-[9px] px-1.5 py-0.5 rounded-full border border-gray-700 font-bold">0%</div>
+                        <div class="text-center flex-1 relative">
+                            <div id="mixedSwatch" class="w-full h-12 rounded border border-gray-700 bg-black shadow-inner mb-1"></div>
+                            <span class="text-[9px] text-gray-500 uppercase">Sua Mistura</span>
+                            <div id="accuracyBadge" class="absolute -top-2 -right-1 bg-gray-800 text-gray-400 text-[9px] px-1.5 py-0.5 rounded border border-gray-700 font-bold">0%</div>
                         </div>
                     </div>
 
-                    <div class="bg-[#18181b] rounded-xl p-4 border border-[#27272a]">
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="text-xs font-bold text-gray-300">Receita (Seu Estoque)</h4>
-                            <button onclick="saveCurrentRecipe()" id="btnSave" class="text-[10px] bg-zinc-800 hover:bg-zinc-700 text-gray-300 px-2 py-1 rounded border border-zinc-700 transition flex items-center gap-1 disabled:opacity-50">
+                    <div class="bg-[#09090b] rounded p-3 border border-[#27272a]">
+                        <div class="flex justify-between items-center mb-2 pb-2 border-b border-[#27272a]">
+                            <h4 class="text-[10px] font-bold text-gray-300">RECEITA (SUA BANCADA)</h4>
+                            <button onclick="saveCurrentRecipe()" id="btnSave" class="text-[9px] bg-zinc-800 hover:bg-zinc-700 text-gray-300 px-2 py-0.5 rounded border border-zinc-700 transition flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                                 <i data-lucide="save" class="w-3 h-3"></i> Salvar
                             </button>
                         </div>
-                        <div id="recipeOutput" class="space-y-2 text-xs">
-                            <p class="text-gray-600 italic">Selecione uma cor na imagem...</p>
-                        </div>
-                    </div>
-
-                    <div id="idealMatchContainer" class="hidden relative group">
-                        <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl opacity-20 group-hover:opacity-40 transition blur"></div>
-                        <div class="relative bg-[#1a1a1a] rounded-xl p-4 border border-yellow-500/20">
-                            <div class="flex justify-between items-start mb-3">
-                                <h5 class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-1.5">
-                                    <i data-lucide="sparkles" class="w-3 h-3"></i> Precisão Máxima
-                                </h5>
-                                <div class="text-center">
-                                    <div id="idealSwatch" class="w-8 h-8 rounded border border-yellow-500/30 bg-black shadow-[0_0_10px_rgba(234,179,8,0.2)]"></div>
-                                </div>
-                            </div>
-                            
-                            <div id="idealMatchContent" class="space-y-1.5 text-xs"></div>
+                        <div id="recipeOutput" class="space-y-1.5 min-h-[40px]">
+                            <p class="text-gray-600 italic text-xs py-2 text-center">Clique na imagem para gerar.</p>
                         </div>
                     </div>
                 </div>
 
-                <hr class="border-[#27272a]">
+                <div id="idealMatchContainer" class="hidden relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 rounded-xl blur-sm opacity-50"></div>
+                    <div class="relative bg-[#141417] rounded-xl p-4 border border-yellow-500/20">
+                        <div class="flex justify-between items-start mb-3">
+                            <h5 class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i> Precisão Máxima
+                            </h5>
+                            <div id="idealSwatch" class="w-6 h-6 rounded border border-yellow-500/30 bg-black"></div>
+                        </div>
+                        <div id="idealMatchContent" class="space-y-1 text-xs"></div>
+                    </div>
+                </div>
 
-                <div class="space-y-3">
-                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                        <i data-lucide="bookmark" class="w-3 h-3"></i> Salvas
+                <div>
+                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 px-1">
+                        <i data-lucide="bookmark" class="w-3 h-3"></i> Misturas Salvas
                     </h3>
-                    <div id="savedList" class="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-1">
-                        <p class="text-[10px] text-gray-600 italic">Nenhuma receita salva.</p>
+                    <div id="savedList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                        <p class="text-[10px] text-gray-700 italic px-2">Nenhuma receita salva.</p>
                     </div>
                 </div>
 
-                <hr class="border-[#27272a]">
-
-                <div class="space-y-3 pb-4">
-                    <div class="flex justify-between items-center">
+                <div>
+                    <div class="flex justify-between items-center mb-3 px-1">
                         <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
                             <i data-lucide="box" class="w-3 h-3"></i> Minha Bancada
                         </h3>
-                        <button onclick="clearBench()" class="text-[10px] text-red-400 hover:underline">Limpar</button>
+                        <button onclick="clearBench()" class="text-[10px] text-red-400 hover:text-red-300">Limpar</button>
                     </div>
                     
-                    <div id="myBench" class="grid grid-cols-1 gap-2">
-                        <div id="emptyBenchMsg" class="text-center py-6 border-2 border-dashed border-[#27272a] rounded-lg">
-                            <p class="text-xs text-gray-500">Estoque vazio.</p>
+                    <div id="myBench" class="grid grid-cols-1 gap-1.5">
+                        <div id="emptyBenchMsg" class="text-center py-8 border border-dashed border-[#27272a] rounded-lg bg-[#09090b]">
+                            <i data-lucide="arrow-up" class="w-4 h-4 text-gray-600 mx-auto mb-1"></i>
+                            <p class="text-[10px] text-gray-500">Adicione tintas do catálogo acima</p>
                         </div>
                     </div>
                 </div>
@@ -174,7 +175,7 @@
     </main>
 
     <script>
-        // --- DADOS ---
+        // --- BASE DE DADOS ---
         const PAINT_COLORS = [
             { id: '319', name: 'Branco de Titânio', hex: '#FEFEFE' }, { id: '310', name: 'Cor de Carne Clara', hex: '#FBEFD5' },
             { id: '326', name: 'Amarelo Pêssego', hex: '#FAD6A5' }, { id: '342', name: 'Amarelo Nápoles', hex: '#FFDB58' },
@@ -206,21 +207,23 @@
         let benchColors = []; 
         let savedRecipes = [];
         let targetRGB = { r: 0, g: 0, b: 0 };
-        let currentTargetHex = null; // Para salvar a receita
+        let currentTargetHex = null;
         let currentImageObject = null;
+        // Variáveis para controle do canvas e zoom preciso
+        let imgState = { x: 0, y: 0, w: 0, h: 0, scale: 1 };
 
-        // UI Elements
+        // DOM Elements
         const catalogList = document.getElementById('catalogList');
         const myBench = document.getElementById('myBench');
         const imageCanvas = document.getElementById('imageCanvas');
+        const canvasContainer = document.getElementById('canvasContainer');
         const zoomCanvas = document.getElementById('zoomCanvas');
         const magnifier = document.getElementById('magnifier');
         const ctx = imageCanvas.getContext('2d');
         const zoomCtx = zoomCanvas.getContext('2d');
         const savedList = document.getElementById('savedList');
 
-        zoomCtx.imageSmoothingEnabled = true;
-        zoomCtx.imageSmoothingQuality = 'high';
+        zoomCtx.imageSmoothingEnabled = false; // Pixel art look para zoom preciso
 
         lucide.createIcons();
 
@@ -228,17 +231,22 @@
             renderCatalog();
             loadBenchState();
             loadSavedRecipes();
+            
+            // Listener para redimensionamento da janela
+            window.addEventListener('resize', () => {
+                if (currentImageObject) drawImageOnCanvas();
+            });
         }
 
-        // --- SISTEMA DE SALVAR/CARREGAR (LocalStorage) ---
+        // --- LÓGICA DE DADOS ---
 
         function saveBenchState() {
             const ids = benchColors.map(c => c.id);
-            localStorage.setItem('oil_bench_v2', JSON.stringify(ids));
+            localStorage.setItem('oil_bench_v3', JSON.stringify(ids));
         }
 
         function loadBenchState() {
-            const saved = localStorage.getItem('oil_bench_v2');
+            const saved = localStorage.getItem('oil_bench_v3');
             if (saved) {
                 try {
                     const ids = JSON.parse(saved);
@@ -249,11 +257,9 @@
         }
 
         function loadSavedRecipes() {
-            const saved = localStorage.getItem('oil_recipes_v1');
+            const saved = localStorage.getItem('oil_recipes_v3');
             if (saved) {
-                try {
-                    savedRecipes = JSON.parse(saved);
-                } catch(e) {}
+                try { savedRecipes = JSON.parse(saved); } catch(e) {}
             }
             renderSavedRecipes();
         }
@@ -263,66 +269,55 @@
             
             const newRecipe = {
                 id: Date.now(),
+                name: `Mistura ${savedRecipes.length + 1}`,
                 targetHex: currentTargetHex,
-                timestamp: new Date().toLocaleString('pt-BR')
+                timestamp: new Date().toLocaleDateString('pt-BR')
             };
             
-            savedRecipes.unshift(newRecipe); // Adiciona no topo
-            localStorage.setItem('oil_recipes_v1', JSON.stringify(savedRecipes));
+            savedRecipes.unshift(newRecipe);
+            localStorage.setItem('oil_recipes_v3', JSON.stringify(savedRecipes));
             renderSavedRecipes();
             
-            // Feedback visual
+            // Feedback
             const btn = document.getElementById('btnSave');
-            const originalText = btn.innerHTML;
+            const originalHTML = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Salvo`;
-            btn.classList.add('text-green-400');
-            lucide.createIcons();
+            btn.classList.add('text-green-400', 'border-green-500');
             setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.remove('text-green-400');
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('text-green-400', 'border-green-500');
                 lucide.createIcons();
-            }, 1500);
+            }, 1000);
+        };
+
+        window.renameRecipe = (id) => {
+            const recipe = savedRecipes.find(r => r.id === id);
+            if (!recipe) return;
+            
+            const newName = prompt("Novo nome para a mistura:", recipe.name);
+            if (newName && newName.trim() !== "") {
+                recipe.name = newName.trim();
+                localStorage.setItem('oil_recipes_v3', JSON.stringify(savedRecipes));
+                renderSavedRecipes();
+            }
         };
 
         window.loadRecipe = (hex) => {
-            // Simula clique na cor
             currentTargetHex = hex;
-            const rgb = hexToRgb(hex);
-            targetRGB = rgb;
+            targetRGB = hexToRgb(hex);
             document.getElementById('targetSwatch').style.backgroundColor = hex;
             calculateMixture();
         };
 
         window.deleteRecipe = (id) => {
-            savedRecipes = savedRecipes.filter(r => r.id !== id);
-            localStorage.setItem('oil_recipes_v1', JSON.stringify(savedRecipes));
-            renderSavedRecipes();
+            if(confirm('Apagar esta receita?')) {
+                savedRecipes = savedRecipes.filter(r => r.id !== id);
+                localStorage.setItem('oil_recipes_v3', JSON.stringify(savedRecipes));
+                renderSavedRecipes();
+            }
         };
 
-        function renderSavedRecipes() {
-            if (savedRecipes.length === 0) {
-                savedList.innerHTML = `<p class="text-[10px] text-gray-600 italic">Nenhuma receita salva.</p>`;
-                return;
-            }
-
-            savedList.innerHTML = savedRecipes.map(r => `
-                <div class="flex items-center justify-between bg-[#18181b] p-2 rounded border border-[#27272a] group hover:border-gray-600 transition">
-                    <div class="flex items-center gap-2 cursor-pointer flex-1" onclick="loadRecipe('${r.targetHex}')">
-                        <div class="w-4 h-4 rounded-full border border-gray-600" style="background-color: ${r.targetHex}"></div>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] text-gray-300">Mistura ${r.id.toString().slice(-4)}</span>
-                            <span class="text-[9px] text-gray-600">${r.timestamp.split(' ')[0]}</span>
-                        </div>
-                    </div>
-                    <button onclick="deleteRecipe(${r.id})" class="text-gray-600 hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition">
-                        <i data-lucide="trash" class="w-3 h-3"></i>
-                    </button>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        // --- RENDERIZADORES ---
+        // --- RENDERIZADORES UI ---
 
         document.getElementById('searchInput').addEventListener('input', (e) => renderCatalog(e.target.value.toLowerCase()));
 
@@ -331,11 +326,38 @@
             
             catalogList.innerHTML = filtered.map(c => `
                 <div onclick="addToBench('${c.id}')" 
-                     class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-[#333] hover:border-orange-500 cursor-pointer relative group transition-all hover:scale-110 ml-2" 
+                     class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-[#333] hover:border-orange-500 cursor-pointer relative group transition-all hover:scale-110" 
                      style="background-color: ${c.hex}" title="${c.name}">
-                     <div class="absolute inset-0 rounded-full shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]"></div>
                 </div>
             `).join('');
+        }
+
+        function renderSavedRecipes() {
+            if (savedRecipes.length === 0) {
+                savedList.innerHTML = `<p class="text-[10px] text-gray-700 italic px-2">Nenhuma receita salva.</p>`;
+                return;
+            }
+
+            savedList.innerHTML = savedRecipes.map(r => `
+                <div class="flex items-center justify-between bg-[#09090b] p-2 rounded border border-[#27272a] group hover:border-gray-600 transition">
+                    <div class="flex items-center gap-2 cursor-pointer flex-1 min-w-0" onclick="loadRecipe('${r.targetHex}')">
+                        <div class="w-6 h-6 rounded border border-gray-600 flex-shrink-0 shadow-sm" style="background-color: ${r.targetHex}"></div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[11px] text-gray-300 font-medium truncate">${r.name}</span>
+                            <span class="text-[9px] text-gray-600">${r.timestamp}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="renameRecipe(${r.id})" class="text-gray-600 hover:text-blue-400 p-1 rounded hover:bg-zinc-800 transition" title="Renomear">
+                            <i data-lucide="pencil" class="w-3 h-3"></i>
+                        </button>
+                        <button onclick="deleteRecipe(${r.id})" class="text-gray-600 hover:text-red-400 p-1 rounded hover:bg-zinc-800 transition" title="Excluir">
+                            <i data-lucide="trash" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
         }
 
         function renderBench() {
@@ -344,10 +366,10 @@
                 document.getElementById('emptyBenchMsg').style.display = 'block';
             } else {
                 myBench.innerHTML = benchColors.map(c => `
-                    <div class="flex items-center justify-between bg-[#18181b] p-2 rounded border border-[#27272a] group">
+                    <div class="flex items-center justify-between bg-[#141417] p-2 rounded border border-[#27272a] group hover:border-gray-600">
                         <div class="flex items-center gap-2 overflow-hidden">
-                            <div class="w-6 h-6 rounded border border-gray-600 flex-shrink-0" style="background-color: ${c.hex}"></div>
-                            <span class="text-[10px] text-gray-300 truncate">${c.name}</span>
+                            <div class="w-4 h-4 rounded-full border border-gray-600 flex-shrink-0" style="background-color: ${c.hex}"></div>
+                            <span class="text-[10px] text-gray-400 truncate w-32">${c.name}</span>
                         </div>
                         <button onclick="removeFromBench('${c.id}')" class="text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition">
                             <i data-lucide="x" class="w-3 h-3"></i>
@@ -359,7 +381,6 @@
             if (targetRGB.r + targetRGB.g + targetRGB.b > 0) calculateMixture();
         }
 
-        // --- AÇÕES BANCADA ---
         window.addToBench = (id) => {
             if (!benchColors.find(c => c.id === id)) {
                 benchColors.push(PAINT_COLORS.find(c => c.id === id));
@@ -378,7 +399,8 @@
             renderBench();
         };
 
-        // --- CANVAS ---
+        // --- LÓGICA DE CANVAS E ZOOM PRECISO ---
+        
         document.getElementById('imageInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -387,9 +409,7 @@
                 const img = new Image();
                 img.onload = () => {
                     currentImageObject = img;
-                    imageCanvas.width = img.width;
-                    imageCanvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
+                    drawImageOnCanvas();
                     document.getElementById('emptyState').classList.add('hidden');
                     imageCanvas.classList.remove('hidden');
                 };
@@ -398,55 +418,98 @@
             reader.readAsDataURL(file);
         });
 
-        const container = document.getElementById('canvasContainer');
-        imageCanvas.addEventListener('mousemove', (e) => {
+        function drawImageOnCanvas() {
             if (!currentImageObject) return;
-            const rect = imageCanvas.getBoundingClientRect();
-            
-            // Lupa Position
-            magnifier.classList.remove('hidden');
-            const magHalf = 80; // half of w-40 (160px)
-            let magX = e.clientX + 20; 
-            let magY = e.clientY + 20;
-            
-            // Keep magnifier inside window
-            if (magX + 160 > window.innerWidth) magX = e.clientX - 180;
-            if (magY + 160 > window.innerHeight) magY = e.clientY - 180;
 
+            // Define o tamanho do canvas baseado no container pai
+            const rect = canvasContainer.getBoundingClientRect();
+            imageCanvas.width = rect.width;
+            imageCanvas.height = rect.height;
+
+            // Calcula proporção para "object-fit: contain" manualmente
+            const scale = Math.min(imageCanvas.width / currentImageObject.width, imageCanvas.height / currentImageObject.height);
+            const x = (imageCanvas.width / 2) - (currentImageObject.width / 2) * scale;
+            const y = (imageCanvas.height / 2) - (currentImageObject.height / 2) * scale;
+            
+            // Salva estado para cálculos de mouse
+            imgState = { x, y, w: currentImageObject.width * scale, h: currentImageObject.height * scale, scale };
+
+            // Desenha com fundo preto antes (para garantir contraste)
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, imageCanvas.width, imageCanvas.height);
+            ctx.drawImage(currentImageObject, x, y, currentImageObject.width * scale, currentImageObject.height * scale);
+        }
+
+        // Mouse Move - Zoom Lupa
+        canvasContainer.addEventListener('mousemove', (e) => {
+            if (!currentImageObject) return;
+
+            const rect = imageCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Verifica se o mouse está sobre a área da imagem desenhada (ignora bordas pretas)
+            if (mouseX < imgState.x || mouseX > imgState.x + imgState.w || 
+                mouseY < imgState.y || mouseY > imgState.y + imgState.h) {
+                magnifier.classList.add('hidden');
+                return;
+            }
+
+            magnifier.classList.remove('hidden');
+            
+            // Posiciona Lupa ao lado do cursor
+            let magX = e.clientX + 20;
+            let magY = e.clientY + 20;
+            if (magX + 130 > window.innerWidth) magX = e.clientX - 140;
+            if (magY + 130 > window.innerHeight) magY = e.clientY - 140;
             magnifier.style.left = `${magX}px`;
             magnifier.style.top = `${magY}px`;
 
-            // Draw Zoom
-            const scaleX = currentImageObject.width / rect.width;
-            const scaleY = currentImageObject.height / rect.height;
-            const realX = (e.clientX - rect.left) * scaleX;
-            const realY = (e.clientY - rect.top) * scaleY;
+            // Calcula coordenadas reais na imagem original
+            const realX = (mouseX - imgState.x) / imgState.scale;
+            const realY = (mouseY - imgState.y) / imgState.scale;
+
+            // Desenha zoom
+            const zoomSize = 128; // Tamanho do canvas da lupa
+            const zoomLevel = 3;  // Fator de zoom
+            const srcSize = zoomSize / zoomLevel;
 
             zoomCtx.fillStyle = '#000';
-            zoomCtx.fillRect(0,0,160,160);
-            
-            // Zoom 3x
-            const srcSize = 160 / 3; 
-            zoomCtx.drawImage(currentImageObject, realX - srcSize/2, realY - srcSize/2, srcSize, srcSize, 0, 0, 160, 160);
+            zoomCtx.fillRect(0,0,zoomSize,zoomSize);
+            zoomCtx.drawImage(
+                currentImageObject, 
+                realX - srcSize/2, realY - srcSize/2, srcSize, srcSize, 
+                0, 0, zoomSize, zoomSize
+            );
         });
 
-        imageCanvas.addEventListener('mouseleave', () => magnifier.classList.add('hidden'));
+        canvasContainer.addEventListener('mouseleave', () => magnifier.classList.add('hidden'));
 
-        imageCanvas.addEventListener('click', (e) => {
+        // Clique - Pegar Cor
+        canvasContainer.addEventListener('click', (e) => {
             if (!currentImageObject) return;
-            const rect = imageCanvas.getBoundingClientRect();
-            const realX = (e.clientX - rect.left) * (currentImageObject.width / rect.width);
-            const realY = (e.clientY - rect.top) * (currentImageObject.height / rect.height);
             
-            const p = ctx.getImageData(realX, realY, 1, 1).data;
+            const rect = imageCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Validar clique dentro da imagem
+            if (mouseX < imgState.x || mouseX > imgState.x + imgState.w || 
+                mouseY < imgState.y || mouseY > imgState.y + imgState.h) return;
+
+            // Pega pixel desenhado (visualmente o que o usuário vê)
+            const p = ctx.getImageData(mouseX, mouseY, 1, 1).data;
+            
             targetRGB = { r: p[0], g: p[1], b: p[2] };
             currentTargetHex = rgbToHex(p[0], p[1], p[2]);
             
             document.getElementById('targetSwatch').style.backgroundColor = currentTargetHex;
+            document.getElementById('btnSave').disabled = false;
             calculateMixture();
         });
 
-        // --- MATH ---
+        // --- CÁLCULO DE MISTURA ---
+
         function hexToRgb(hex) {
             const r = parseInt(hex.slice(1,3), 16);
             const g = parseInt(hex.slice(3,5), 16);
@@ -460,6 +523,7 @@
             const rgb1 = hexToRgb(c1.hex);
             const rgb2 = hexToRgb(c2.hex);
             const w2 = 1 - ratio;
+            // Mistura quadrática para melhor aproximação de pigmentos que média linear
             return {
                 r: Math.sqrt(Math.pow(rgb1.r, 2) * ratio + Math.pow(rgb2.r, 2) * w2),
                 g: Math.sqrt(Math.pow(rgb1.g, 2) * ratio + Math.pow(rgb2.g, 2) * w2),
@@ -470,19 +534,18 @@
             return Math.sqrt(Math.pow(c1.r - c2.r, 2) + Math.pow(c1.g - c2.g, 2) + Math.pow(c1.b - c2.b, 2));
         }
 
-        // --- CORE LOGIC ---
         function calculateMixture() {
             if (benchColors.length === 0) {
-                document.getElementById('recipeOutput').innerHTML = '<span class="text-red-400">Estoque vazio</span>';
+                document.getElementById('recipeOutput').innerHTML = '<span class="text-red-400 text-[10px] text-center block">Bancada vazia</span>';
                 document.getElementById('idealMatchContainer').classList.add('hidden');
                 return;
             }
 
-            // 1. Calc Bench
+            // 1. Bancada Atual
             let bestBench = findBestMix(benchColors, targetRGB);
             renderBenchResult(bestBench);
 
-            // 2. Calc Ideal
+            // 2. Ideal (Catálogo Todo)
             let bestIdeal = findBestMix(PAINT_COLORS, targetRGB);
             renderIdealResult(bestIdeal);
         }
@@ -490,18 +553,16 @@
         function findBestMix(colors, target) {
             let best = { d: Infinity, recipe: [], res: {r:0,g:0,b:0} };
             
-            // Single
+            // Cores puras
             colors.forEach(c => {
                 const rgb = hexToRgb(c.hex);
                 const d = dist(target, rgb);
                 if (d < best.d) best = { d, recipe: [{c, p:100}], res: rgb };
             });
 
-            // Dual
+            // Misturas de 2 cores
             if (colors.length > 1) {
-                // Otimização: Se a lista for grande (catalogo completo), reduz a precisão do loop
-                const step = colors.length > 20 ? 0.2 : 0.1; 
-                
+                const step = colors.length > 20 ? 0.2 : 0.1; // Otimização para listas grandes
                 for (let i=0; i<colors.length; i++) {
                     for (let j=i+1; j<colors.length; j++) {
                         for (let r=step; r < 0.95; r+=step) {
@@ -526,19 +587,17 @@
             const acc = Math.max(0, Math.round((1 - (m.d / 150)) * 100));
             const badge = document.getElementById('accuracyBadge');
             badge.innerText = `${acc}%`;
-            badge.className = `absolute -top-2 -right-2 text-[9px] px-1.5 py-0.5 rounded-full border font-bold text-white ${acc > 85 ? 'bg-green-600 border-green-500' : acc > 60 ? 'bg-yellow-600 border-yellow-500' : 'bg-red-600 border-red-500'}`;
+            badge.className = `absolute -top-2 -right-1 text-[9px] px-1.5 py-0.5 rounded border font-bold ${acc > 85 ? 'bg-green-900/80 text-green-200 border-green-700' : acc > 60 ? 'bg-yellow-900/80 text-yellow-200 border-yellow-700' : 'bg-red-900/80 text-red-200 border-red-700'}`;
 
             document.getElementById('recipeOutput').innerHTML = m.recipe.map(i => `
-                <div class="flex justify-between items-center bg-[#202022] p-1.5 rounded">
+                <div class="flex justify-between items-center bg-[#18181b] p-1.5 rounded border border-[#27272a]">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full" style="background-color: ${i.c.hex}"></div>
-                        <span class="text-gray-300 truncate w-32">${i.c.name}</span>
+                        <span class="text-gray-300 truncate w-32 text-[11px]">${i.c.name}</span>
                     </div>
-                    <span class="font-mono text-orange-400 font-bold">${i.p}%</span>
+                    <span class="font-mono text-orange-400 font-bold text-[11px]">${i.p}%</span>
                 </div>
             `).join('');
-            
-            document.getElementById('btnSave').disabled = false;
         }
 
         function renderIdealResult(m) {
@@ -547,20 +606,18 @@
             const swatch = document.getElementById('idealSwatch');
 
             container.classList.remove('hidden');
-            
-            // Renderiza o Swatch Ideal
             const hex = rgbToHex(Math.round(m.res.r), Math.round(m.res.g), Math.round(m.res.b));
             swatch.style.backgroundColor = hex;
 
             const acc = Math.max(0, Math.round((1 - (m.d / 150)) * 100));
 
             content.innerHTML = m.recipe.map(i => `
-                <div class="flex justify-between items-center bg-black/40 p-1 rounded">
+                <div class="flex justify-between items-center bg-black/40 p-1.5 rounded">
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full" style="background-color: ${i.c.hex}"></div>
-                        <span class="text-gray-300 truncate">${i.c.name}</span>
+                        <span class="text-gray-300 truncate text-[11px]">${i.c.name}</span>
                     </div>
-                    <span class="font-mono text-yellow-500 font-bold">${i.p}%</span>
+                    <span class="font-mono text-yellow-500 font-bold text-[11px]">${i.p}%</span>
                 </div>
             `).join('') + `<div class="text-[9px] text-right text-yellow-500/70 mt-1">Precisão: ${acc}%</div>`;
         }
