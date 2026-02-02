@@ -2,18 +2,43 @@
 <html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Misturador Acrilico Pro - Studio v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #eee; }
+        
+        /* Correção para altura real no mobile (Safari/Chrome) */
+        :root {
+            --app-height: 100dvh;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #09090b; 
+            color: #eee;
+            /* Impede o efeito "elástico" do Safari ao rolar além do limite */
+            overscroll-behavior: none;
+            /* Garante altura correta considerando barras do navegador */
+            height: 100vh; /* Fallback */
+            height: var(--app-height);
+            width: 100vw;
+            position: fixed; /* Trava o corpo para evitar scroll da página inteira */
+            overflow: hidden;
+        }
+
         .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: #18181b; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
         .checkered-bg {
             background-color: #121212;
             background-image: linear-gradient(45deg, #1a1a1a 25%, transparent 25%), linear-gradient(-45deg, #1a1a1a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1a 75%), linear-gradient(-45deg, transparent 75%, #1a1a1a 75%);
@@ -23,26 +48,27 @@
         #magnifier { border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0,0,0,0.8); pointer-events: none; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden bg-black">
+<body class="flex flex-col bg-black">
 
-    <header class="bg-[#09090b] border-b border-[#27272a] h-16 md:h-20 flex-none z-20 flex items-center px-2 md:px-4 shadow-md relative">
-        <div class="flex items-center gap-2 md:gap-3 w-auto md:w-64 border-r border-[#27272a] mr-2 md:mr-4 pr-2 md:pr-4 h-10">
+    <header class="bg-[#09090b] border-b border-[#27272a] h-14 md:h-20 flex-none z-20 flex items-center px-2 md:px-4 shadow-md relative pt-[env(safe-area-inset-top)]">
+        <div class="flex items-center gap-2 md:gap-3 w-auto md:w-64 border-r border-[#27272a] mr-2 md:mr-4 pr-2 md:pr-4 h-full py-2">
             <div class="bg-orange-600/20 p-1.5 rounded-lg flex-shrink-0"><i data-lucide="palette" class="w-5 h-5 text-orange-500"></i></div>
             <div class="hidden sm:block">
                 <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider">Catálogo Master</h1>
                 <span class="text-[10px] text-gray-500">Tintas a Acrilico</span>
             </div>
         </div>
-        <div id="catalogList" class="flex-1 flex gap-1 overflow-x-auto pb-1 items-center h-12 px-2 no-scrollbar"></div>
-        <div class="w-32 md:w-48 ml-2 md:ml-4 pl-2 md:pl-4 border-l border-[#27272a]">
-            <div class="relative">
+        <div id="catalogList" class="flex-1 flex gap-1 overflow-x-auto items-center h-full px-2 no-scrollbar touch-pan-x"></div>
+        <div class="w-10 md:w-48 ml-1 md:ml-4 pl-1 md:pl-4 md:border-l border-[#27272a] flex justify-end md:justify-start">
+            <div class="relative hidden md:block">
                 <i data-lucide="search" class="absolute left-2 top-2 w-3 h-3 text-gray-500"></i>
                 <input type="text" id="searchInput" class="bg-[#18181b] border border-[#27272a] text-gray-300 text-[10px] rounded-full focus:ring-1 focus:ring-orange-500 block w-full pl-7 p-1.5 placeholder-gray-600" placeholder="Filtrar...">
             </div>
+            <button class="md:hidden p-2 text-gray-400" onclick="document.getElementById('searchInput').focus()"><i data-lucide="search" class="w-5 h-5"></i></button>
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         
         <section class="flex-1 bg-[#050505] relative flex flex-col items-center justify-center overflow-hidden md:border-r border-[#27272a]">
             <div class="absolute top-4 left-4 z-10">
@@ -51,65 +77,73 @@
                     <i data-lucide="image-plus" class="w-4 h-4"></i><span class="hidden sm:inline">Carregar Imagem</span><span class="sm:hidden">Carregar</span>
                 </button>
             </div>
+            
             <div id="canvasContainer" class="w-full h-full flex items-center justify-center cursor-crosshair relative checkered-bg touch-none">
-                <div id="emptyState" class="text-center opacity-40"><i data-lucide="image" class="w-12 h-12 md:w-16 md:h-16 text-gray-500 mx-auto mb-2"></i><p class="text-gray-500 text-sm">Carregar imagem</p></div>
+                <div id="emptyState" class="text-center opacity-40 select-none pointer-events-none">
+                    <i data-lucide="image" class="w-12 h-12 md:w-16 md:h-16 text-gray-500 mx-auto mb-2"></i>
+                    <p class="text-gray-500 text-sm">Carregar imagem</p>
+                </div>
                 <canvas id="imageCanvas" class="hidden shadow-2xl max-w-full max-h-full"></canvas>
-                <div id="magnifier" class="fixed w-24 h-24 md:w-32 md:h-32 hidden z-50 bg-black border border-gray-700">
+                
+                <div id="magnifier" class="fixed w-24 h-24 md:w-32 md:h-32 hidden z-50 bg-black border border-gray-700 pointer-events-none">
                     <canvas id="zoomCanvas" width="128" height="128"></canvas>
                     <div class="absolute inset-0 flex items-center justify-center"><div class="w-1 h-1 bg-red-500 shadow-[0_0_2px_white]"></div></div>
                 </div>
             </div>
         </section>
 
-        <section class="w-full h-[45vh] md:h-full md:w-[400px] flex-none bg-[#0c0c0e] flex flex-col border-t md:border-t-0 md:border-l border-[#27272a] shadow-2xl z-10">
-            <div class="flex-1 overflow-y-auto p-3 md:p-5 space-y-4 md:space-y-6">
+        <section class="w-full h-[45%] md:h-full md:w-[400px] flex-none bg-[#0c0c0e] flex flex-col border-t md:border-t-0 md:border-l border-[#27272a] shadow-[0_-4px_20px_rgba(0,0,0,0.5)] z-20 pb-[env(safe-area-inset-bottom)]">
+            <div class="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 overscroll-contain">
                 
-                <div class="bg-[#141417] rounded-xl border border-[#27272a] p-3 md:p-4 shadow-sm">
-                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="scan-eye" class="w-3 h-3 text-orange-500"></i> Análise</h3>
-                    <div class="flex items-center justify-between gap-3 mb-3">
-                        <div class="text-center flex-1">
-                            <div id="targetSwatch" class="w-full h-10 md:h-12 rounded border border-gray-700 bg-black shadow-inner mb-1"></div>
-                            <span class="text-[9px] text-gray-500 uppercase">Alvo</span>
+                <div class="bg-[#141417] rounded-xl border border-[#27272a] p-3 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2"><i data-lucide="scan-eye" class="w-3 h-3 text-orange-500"></i> Análise</h3>
+                        <div id="accuracyBadge" class="hidden text-[9px] px-1.5 py-0.5 rounded border font-bold bg-gray-800 border-gray-700 text-gray-400">0%</div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="flex-1">
+                            <div id="targetSwatch" class="w-full h-8 rounded border border-gray-700 bg-black shadow-inner"></div>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-[9px] text-gray-500 uppercase">Alvo</span>
+                                <button onclick="saveCurrentRecipe()" id="btnSave" class="text-[9px] bg-zinc-800 hover:bg-zinc-700 text-gray-300 px-2 py-0.5 rounded border border-zinc-700 disabled:opacity-30" disabled>Salvar</button>
+                            </div>
                         </div>
                         <i data-lucide="arrow-right" class="text-gray-700 w-4 h-4"></i>
-                        <div class="text-center flex-1 relative">
-                            <div id="mixedSwatch" class="w-full h-10 md:h-12 rounded border border-gray-700 bg-black shadow-inner mb-1"></div>
-                            <span class="text-[9px] text-gray-500 uppercase">Mistura</span>
-                            <div id="accuracyBadge" class="absolute -top-2 -right-1 bg-gray-800 text-gray-400 text-[9px] px-1.5 py-0.5 rounded border border-gray-700 font-bold">0%</div>
+                        <div class="flex-1">
+                            <div id="mixedSwatch" class="w-full h-8 rounded border border-gray-700 bg-black shadow-inner"></div>
+                            <span class="text-[9px] text-gray-500 uppercase mt-1 block">Mistura</span>
                         </div>
                     </div>
-                    <div class="bg-[#09090b] rounded p-2 md:p-3 border border-[#27272a]">
-                        <div class="flex justify-between items-center mb-2 pb-2 border-b border-[#27272a]">
-                            <h4 class="text-[10px] font-bold text-gray-300 uppercase">Receita</h4>
-                            <button onclick="saveCurrentRecipe()" id="btnSave" class="text-[9px] bg-zinc-800 hover:bg-zinc-700 text-gray-300 px-2 py-0.5 rounded border border-zinc-700 disabled:opacity-50" disabled>Salvar</button>
-                        </div>
-                        <div id="recipeOutput" class="space-y-1.5 min-h-[40px] flex flex-col justify-center"><p class="text-gray-600 italic text-xs text-center">Toque na imagem.</p></div>
+                    
+                    <div class="bg-[#09090b] rounded p-2 border border-[#27272a] min-h-[40px] flex flex-col justify-center">
+                         <div id="recipeOutput" class="space-y-1"><p class="text-gray-600 italic text-xs text-center">Toque na imagem.</p></div>
                     </div>
                 </div>
 
                 <div id="idealMatchContainer" class="hidden relative group">
                     <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 rounded-xl blur-sm opacity-50"></div>
-                    <div class="relative bg-[#141417] rounded-xl p-3 md:p-4 border border-yellow-500/20">
+                    <div class="relative bg-[#141417] rounded-xl p-3 border border-yellow-500/20">
                         <div class="flex justify-between items-start mb-2">
-                            <h5 class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3 h-3"></i> Precisão Máxima</h5>
-                            <div id="idealSwatch" class="w-6 h-6 rounded border border-yellow-500/30 bg-black"></div>
+                            <h5 class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3 h-3"></i> Melhor Opção</h5>
+                            <div id="idealSwatch" class="w-4 h-4 rounded border border-yellow-500/30 bg-black"></div>
                         </div>
                         <div id="idealMatchContent" class="space-y-1 text-xs"></div>
                     </div>
                 </div>
 
-                <div class="space-y-4 pb-4">
-                    <div>
-                        <div class="flex justify-between items-center mb-2 px-1">
-                            <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2"><i data-lucide="box" class="w-3 h-3"></i> Minha Bancada</h3>
-                            <button onclick="clearBench()" class="text-[10px] text-red-400 hover:text-red-300">Limpar</button>
+                <div class="grid grid-cols-2 gap-3 md:block md:space-y-4">
+                    <div class="bg-[#141417]/50 rounded-lg p-2 border border-[#27272a]/50">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-[10px] font-bold text-gray-500 uppercase flex items-center gap-1"><i data-lucide="box" class="w-3 h-3"></i> Bancada</h3>
+                            <button onclick="clearBench()" class="text-[10px] text-red-400 hover:text-red-300 px-1">Limpar</button>
                         </div>
-                        <div id="myBench" class="grid grid-cols-1 gap-1.5 max-h-32 overflow-y-auto"></div>
+                        <div id="myBench" class="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto pr-1"></div>
                     </div>
                     
-                    <div>
-                        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 px-1"><i data-lucide="bookmark" class="w-3 h-3"></i> Salvas</h3>
-                        <div id="savedList" class="space-y-2 max-h-32 overflow-y-auto pr-1"></div>
+                    <div class="bg-[#141417]/50 rounded-lg p-2 border border-[#27272a]/50">
+                        <h3 class="text-[10px] font-bold text-gray-500 uppercase mb-2 flex items-center gap-1"><i data-lucide="bookmark" class="w-3 h-3"></i> Salvas</h3>
+                        <div id="savedList" class="space-y-1 max-h-24 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
             </div>
@@ -119,27 +153,27 @@
     <script>
         // --- DADOS ---
         const PAINT_COLORS = [
-            { id: '319', name: 'Branco de Titânio', hex: '#FEFEFE' }, { id: '310', name: 'Cor de Carne Clara', hex: '#FBEFD5' },
+            { id: '319', name: 'Branco Titânio', hex: '#FEFEFE' }, { id: '310', name: 'Carne Clara', hex: '#FBEFD5' },
             { id: '326', name: 'Amarelo Pêssego', hex: '#FAD6A5' }, { id: '342', name: 'Amarelo Nápoles', hex: '#FFDB58' },
-            { id: '304', name: 'Amarelo Nápoles Carne', hex: '#F5D0A9' }, { id: '323', name: 'Amarelo Limão', hex: '#F9F228' },
-            { id: '340', name: 'A. Cádmio Claro', hex: '#FFDF00' }, { id: '324', name: 'Amarelo de Cádmio', hex: '#FFC000' },
+            { id: '304', name: 'Amarelo Carne', hex: '#F5D0A9' }, { id: '323', name: 'Amarelo Limão', hex: '#F9F228' },
+            { id: '340', name: 'A. Cádmio Claro', hex: '#FFDF00' }, { id: '324', name: 'A. Cádmio', hex: '#FFC000' },
             { id: '302', name: 'Amarelo Escuro', hex: '#FFAB00' }, { id: '339', name: 'Amarelo Indiano', hex: '#E3A857' },
-            { id: '360', name: 'Amarelo Ocre', hex: '#C5962B' }, { id: '341', name: 'A. Cádmio Escuro', hex: '#E68A00' },
-            { id: '325', name: 'Laranja de Cádmio', hex: '#FF7518' }, { id: '335', name: 'Laca Orquídea', hex: '#D48BB6' },
+            { id: '360', name: 'Amarelo Ocre', hex: '#C5962B' }, { id: '341', name: 'A. Cádmio Esc.', hex: '#E68A00' },
+            { id: '325', name: 'Laranja Cádmio', hex: '#FF7518' }, { id: '335', name: 'Laca Orquídea', hex: '#D48BB6' },
             { id: '316', name: 'Rosa Escuro', hex: '#C74673' }, { id: '315', name: 'Magenta', hex: '#C51D68' },
             { id: '366', name: 'Vermelho Veneza', hex: '#9E3C32' }, { id: '343', name: 'V. Cádmio Claro', hex: '#E34234' },
-            { id: '312', name: 'Vermelho de Cádmio', hex: '#D3212D' }, { id: '350', name: 'Vermelho Claro', hex: '#D9381E' },
-            { id: '344', name: 'V. Cádmio Escuro', hex: '#9E1B32' }, { id: '328', name: 'Laca Gerânio', hex: '#D62B45' },
+            { id: '312', name: 'V. Cádmio', hex: '#D3212D' }, { id: '350', name: 'Vermelho Claro', hex: '#D9381E' },
+            { id: '344', name: 'V. Cádmio Esc.', hex: '#9E1B32' }, { id: '328', name: 'Laca Gerânio', hex: '#D62B45' },
             { id: '379', name: 'Carmim', hex: '#960018' }, { id: '346', name: 'Alizarin Crimson', hex: '#781F27' },
-            { id: '321', name: 'Violeta Cobalto', hex: '#7866B0' }, { id: '330', name: 'Violeta Perm. Escuro', hex: '#4B2758' },
+            { id: '321', name: 'Violeta Cobalto', hex: '#7866B0' }, { id: '330', name: 'Violeta Escuro', hex: '#4B2758' },
             { id: '306', name: 'Azul Hortênsia', hex: '#9FB6CD' }, { id: '363', name: 'Azul Turquesa', hex: '#009DC4' },
             { id: '347', name: 'Azul Cerúleo', hex: '#0077BE' }, { id: '308', name: 'Azul Cobalto', hex: '#0047AB' },
             { id: '348', name: 'Ultramar Claro', hex: '#4666FF' }, { id: '305', name: 'Azul Ftalocianina', hex: '#002366' },
-            { id: '331', name: 'Azul da Prússia', hex: '#003153' }, { id: '364', name: 'Verde Inglês nº 5', hex: '#2E8B57' },
-            { id: '322', name: 'Verde Musgo', hex: '#4A5D23' }, { id: '332', name: 'Verde Perm. Escuro', hex: '#00563B' },
+            { id: '331', name: 'Azul da Prússia', hex: '#003153' }, { id: '364', name: 'Verde Inglês 5', hex: '#2E8B57' },
+            { id: '322', name: 'Verde Musgo', hex: '#4A5D23' }, { id: '332', name: 'Verde Perm. Esc.', hex: '#00563B' },
             { id: '334', name: 'Verde Oliva', hex: '#6B8E23' }, { id: '354', name: 'Terra Verde', hex: '#6E7F5E' },
-            { id: '353', name: 'Verde Vessie', hex: '#395D33' }, { id: '365', name: 'Verde de Hooker', hex: '#3B533E' },
-            { id: '336', name: 'Terra de Siena Nat.', hex: '#A0522D' }, { id: '357', name: 'T. Siena Queimada', hex: '#8A3324' },
+            { id: '353', name: 'Verde Vessie', hex: '#395D33' }, { id: '365', name: 'Verde Hooker', hex: '#3B533E' },
+            { id: '336', name: 'Terra Siena Nat.', hex: '#A0522D' }, { id: '357', name: 'T. Siena Queimada', hex: '#8A3324' },
             { id: '355', name: 'Sombra Natural', hex: '#5C4033' }, { id: '337', name: 'Marrom Van Dyck', hex: '#45322E' },
             { id: '356', name: 'Sombra Queimada', hex: '#3D2B1F' }, { id: '396', name: 'Sépia', hex: '#2F241E' },
             { id: '311', name: 'Gris Neutro', hex: '#B0B0B0' }, { id: '399', name: 'Gris de Payne', hex: '#536872' },
@@ -156,7 +190,13 @@
         // --- INIT & UTILS ---
         function init() {
             renderCatalog(); loadBenchState(); loadSavedRecipes();
-            window.addEventListener('resize', () => { if (currentImageObject) drawImageOnCanvas(); });
+            window.addEventListener('resize', () => { 
+                // Atualiza a variável de altura para lidar com redimensionamento de janela no desktop ou rotação no mobile
+                document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+                if (currentImageObject) drawImageOnCanvas(); 
+            });
+            // Inicializa altura correta
+            document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
             lucide.createIcons();
         }
 
@@ -170,14 +210,14 @@
         // --- RENDERIZADORES ---
         function renderCatalog(filter = '') {
             const filtered = PAINT_COLORS.filter(c => c.name.toLowerCase().includes(filter) || c.id.includes(filter));
-            catalogList.innerHTML = filtered.map(c => `<div onclick="addToBench('${c.id}')" class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-[#333] hover:border-orange-500 cursor-pointer transition-all active:scale-95" style="background-color: ${c.hex}" title="${c.name}"></div>`).join('');
+            catalogList.innerHTML = filtered.map(c => `<div onclick="addToBench('${c.id}')" class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-[#333] hover:border-orange-500 cursor-pointer transition-all active:scale-90 shadow-md" style="background-color: ${c.hex}" title="${c.name}"></div>`).join('');
         }
 
         function renderBench() {
-            const emptyHTML = `<div class="text-center py-4 border border-dashed border-[#27272a] rounded-lg bg-[#09090b]"><i data-lucide="arrow-up" class="w-4 h-4 text-gray-600 mx-auto mb-1"></i><p class="text-[10px] text-gray-500">Adicione tintas</p></div>`;
+            const emptyHTML = `<div class="text-center py-2 border border-dashed border-[#27272a] rounded bg-[#09090b]"><p class="text-[9px] text-gray-500">Adicione tintas</p></div>`;
             if (benchColors.length === 0) { myBench.innerHTML = emptyHTML; } 
             else {
-                myBench.innerHTML = benchColors.map(c => `<div class="flex items-center justify-between bg-[#141417] p-2 rounded border border-[#27272a] group"><div class="flex items-center gap-2 overflow-hidden"><div class="w-4 h-4 rounded-full border border-gray-600 flex-shrink-0" style="background-color: ${c.hex}"></div><span class="text-[10px] text-gray-400 truncate w-32">${c.name}</span></div><button onclick="removeFromBench('${c.id}')" class="text-gray-600 hover:text-red-400 md:opacity-0 group-hover:opacity-100 p-1"><i data-lucide="x" class="w-3 h-3"></i></button></div>`).join('');
+                myBench.innerHTML = benchColors.map(c => `<div class="flex items-center justify-between bg-[#141417] p-1.5 rounded border border-[#27272a] group"><div class="flex items-center gap-2 overflow-hidden"><div class="w-3 h-3 rounded-full border border-gray-600 flex-shrink-0" style="background-color: ${c.hex}"></div><span class="text-[9px] text-gray-400 truncate w-20">${c.name}</span></div><button onclick="removeFromBench('${c.id}')" class="text-gray-600 hover:text-red-400 p-1"><i data-lucide="x" class="w-3 h-3"></i></button></div>`).join('');
             }
             lucide.createIcons();
             if (targetRGB.r + targetRGB.g + targetRGB.b > 0) calculateMixture();
@@ -217,8 +257,9 @@
             const acc = Math.max(0, Math.round((1 - (m.d / 150)) * 100));
             const b = document.getElementById('accuracyBadge');
             b.innerText = `${acc}%`;
-            b.className = `absolute -top-2 -right-1 text-[9px] px-1.5 py-0.5 rounded border font-bold ${acc > 85 ? 'bg-green-900/80 text-green-200 border-green-700' : acc > 60 ? 'bg-yellow-900/80 text-yellow-200 border-yellow-700' : 'bg-red-900/80 text-red-200 border-red-700'}`;
-            document.getElementById('recipeOutput').innerHTML = m.recipe.map(i => `<div class="flex justify-between items-center bg-[#18181b] p-1.5 rounded border border-[#27272a]"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${i.c.hex}"></div><span class="text-gray-300 truncate w-32 text-[11px]">${i.c.name}</span></div><span class="font-mono text-orange-400 font-bold text-[11px]">${i.p.toFixed(0)}%</span></div>`).join('');
+            b.classList.remove('hidden');
+            b.className = `text-[9px] px-1.5 py-0.5 rounded border font-bold ${acc > 85 ? 'bg-green-900/80 text-green-200 border-green-700' : acc > 60 ? 'bg-yellow-900/80 text-yellow-200 border-yellow-700' : 'bg-red-900/80 text-red-200 border-red-700'}`;
+            document.getElementById('recipeOutput').innerHTML = m.recipe.map(i => `<div class="flex justify-between items-center bg-[#18181b] p-1.5 rounded border border-[#27272a]"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${i.c.hex}"></div><span class="text-gray-300 truncate w-24 text-[10px]">${i.c.name}</span></div><span class="font-mono text-orange-400 font-bold text-[10px]">${i.p.toFixed(0)}%</span></div>`).join('');
         }
 
         function renderIdealResult(m) {
@@ -227,12 +268,12 @@
             const hex = rgbToHex(Math.round(m.res.r), Math.round(m.res.g), Math.round(m.res.b));
             swatch.style.backgroundColor = hex;
             const acc = Math.max(0, Math.round((1 - (m.d / 150)) * 100));
-            content.innerHTML = m.recipe.map(i => `<div class="flex justify-between items-center bg-black/40 p-1.5 rounded"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${i.c.hex}"></div><span class="text-gray-300 truncate text-[11px]">${i.c.name}</span></div><span class="font-mono text-yellow-500 font-bold text-[11px]">${i.p.toFixed(0)}%</span></div>`).join('') + `<div class="text-[9px] text-right text-yellow-500/70 mt-1">Precisão: ${acc}%</div>`;
+            content.innerHTML = m.recipe.map(i => `<div class="flex justify-between items-center bg-black/40 p-1 rounded"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${i.c.hex}"></div><span class="text-gray-300 truncate text-[10px]">${i.c.name}</span></div><span class="font-mono text-yellow-500 font-bold text-[10px]">${i.p.toFixed(0)}%</span></div>`).join('');
         }
 
         function calculateMixture() {
             if (!targetRGB || (targetRGB.r === 0 && targetRGB.g === 0 && targetRGB.b === 0)) return;
-            if (benchColors.length === 0) { document.getElementById('recipeOutput').innerHTML = '<span class="text-red-400 text-[10px] text-center block">Bancada vazia</span>'; return; }
+            if (benchColors.length === 0) { document.getElementById('recipeOutput').innerHTML = '<span class="text-red-400 text-[10px] text-center block">Adicione tintas à bancada</span>'; return; }
             renderBenchResult(findBestMix(benchColors, targetRGB));
             renderIdealResult(findBestMix(PAINT_COLORS, targetRGB));
         }
@@ -247,7 +288,6 @@
 
         function drawImageOnCanvas() {
             const rect = canvasContainer.getBoundingClientRect();
-            // Ajusta para densidade de pixel (retina) se necessário, mas mantendo simples para performance
             imageCanvas.width = rect.width; imageCanvas.height = rect.height;
             const scale = Math.min(imageCanvas.width / currentImageObject.width, imageCanvas.height / currentImageObject.height);
             const x = (imageCanvas.width / 2) - (currentImageObject.width / 2) * scale, y = (imageCanvas.height / 2) - (currentImageObject.height / 2) * scale;
@@ -261,20 +301,26 @@
             if (!currentImageObject) return;
             const rect = imageCanvas.getBoundingClientRect(), mouseX = clientX - rect.left, mouseY = clientY - rect.top;
             
+            // Verifica se está dentro da área da imagem desenhada
             if (mouseX < imgState.x || mouseX > imgState.x + imgState.w || mouseY < imgState.y || mouseY > imgState.y + imgState.h) { 
                 magnifier.classList.add('hidden'); return; 
             }
             magnifier.classList.remove('hidden');
             
-            // Offset da lupa (para não ficar embaixo do dedo no mobile)
+            // Posição da lupa (Offset)
             let magX = clientX + 20, magY = clientY + 20;
             const isMobile = window.innerWidth < 768;
-            if (isMobile) { magY = clientY - 140; } // Lupa acima do dedo no mobile
+            
+            // No mobile, a lupa deve ficar acima do dedo para não ser tapada
+            if (isMobile) { 
+                magY = clientY - 140; 
+                magX = clientX - 64; // Centraliza horizontalmente
+            } 
 
-            // Boundary checks
-            if (magX + 130 > window.innerWidth) magX = clientX - 140; 
-            if (magY + 130 > window.innerHeight) magY = clientY - 140;
-            if (magY < 0) magY = clientY + 20;
+            // Mantém a lupa dentro da tela
+            if (magX + 130 > window.innerWidth) magX = window.innerWidth - 140;
+            if (magX < 0) magX = 10;
+            if (magY < 0) magY = clientY + 40; // Se sair por cima, joga pra baixo
 
             magnifier.style.left = `${magX}px`; magnifier.style.top = `${magY}px`;
             
@@ -294,23 +340,21 @@
             calculateMixture();
         }
 
-        // Mouse Events
+        // Mouse
         canvasContainer.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
         canvasContainer.addEventListener('click', (e) => handlePointerClick(e.clientX, e.clientY));
 
-        // Touch Events
+        // Touch (Suporte total a toque sem arrastar a tela)
         canvasContainer.addEventListener('touchmove', (e) => {
-            e.preventDefault(); // Previne scroll ao arrastar na imagem
+            e.preventDefault(); 
             if(e.touches.length > 0) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: false });
         
         canvasContainer.addEventListener('touchstart', (e) => {
-             // Inicia lupa imediatamente ao tocar
              if(e.touches.length > 0) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: false });
 
         canvasContainer.addEventListener('touchend', (e) => {
-             // Pega a cor ao soltar o dedo
              magnifier.classList.add('hidden');
              if(e.changedTouches.length > 0) handlePointerClick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
         });
@@ -318,10 +362,10 @@
         // --- SISTEMA DE SALVAR ---
         function renderSavedRecipes() {
             const s = localStorage.getItem('oil_recipes_v3'); if (s) savedRecipes = JSON.parse(s);
-            savedList.innerHTML = savedRecipes.length === 0 ? '<p class="text-[10px] text-gray-700 italic px-2">Vazio.</p>' : savedRecipes.map(r => `<div class="flex items-center justify-between bg-[#09090b] p-2 rounded border border-[#27272a] group"><div class="flex items-center gap-2 cursor-pointer overflow-hidden" onclick="loadRecipe('${r.targetHex}')"><div class="w-6 h-6 rounded border border-gray-600 flex-shrink-0" style="background-color: ${r.targetHex}"></div><span class="text-[11px] text-gray-300 truncate">${r.name}</span></div><button onclick="deleteRecipe(${r.id})" class="text-gray-600 hover:text-red-400 p-1"><i data-lucide="trash" class="w-3 h-3"></i></button></div>`).join('');
+            savedList.innerHTML = savedRecipes.length === 0 ? '<p class="text-[9px] text-gray-700 italic px-2">Vazio.</p>' : savedRecipes.map(r => `<div class="flex items-center justify-between bg-[#09090b] p-1.5 rounded border border-[#27272a] group"><div class="flex items-center gap-2 cursor-pointer overflow-hidden" onclick="loadRecipe('${r.targetHex}')"><div class="w-4 h-4 rounded border border-gray-600 flex-shrink-0" style="background-color: ${r.targetHex}"></div><span class="text-[10px] text-gray-300 truncate w-16">${r.name}</span></div><button onclick="deleteRecipe(${r.id})" class="text-gray-600 hover:text-red-400 p-1"><i data-lucide="trash" class="w-3 h-3"></i></button></div>`).join('');
             lucide.createIcons();
         }
-        window.saveCurrentRecipe = () => { if (!currentTargetHex) return; savedRecipes.unshift({id: Date.now(), name: `Mistura ${savedRecipes.length+1}`, targetHex: currentTargetHex}); localStorage.setItem('oil_recipes_v3', JSON.stringify(savedRecipes)); renderSavedRecipes(); };
+        window.saveCurrentRecipe = () => { if (!currentTargetHex) return; savedRecipes.unshift({id: Date.now(), name: `Mix ${savedRecipes.length+1}`, targetHex: currentTargetHex}); localStorage.setItem('oil_recipes_v3', JSON.stringify(savedRecipes)); renderSavedRecipes(); };
         window.deleteRecipe = (id) => { savedRecipes = savedRecipes.filter(r => r.id !== id); localStorage.setItem('oil_recipes_v3', JSON.stringify(savedRecipes)); renderSavedRecipes(); };
         window.loadRecipe = (hex) => { currentTargetHex = hex; targetRGB = hexToRgb(hex); document.getElementById('targetSwatch').style.backgroundColor = hex; calculateMixture(); };
 
