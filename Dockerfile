@@ -13,7 +13,7 @@ RUN npm install
 # Copia o restante do código fonte
 COPY . .
 
-# Expõe a porta que o app usa
+# Expõe a porta que o app usaa
 EXPOSE 3000
 
 # Comando para iniciar a aplicação
